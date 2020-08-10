@@ -1,0 +1,251 @@
+/* Welcome page */
+
+#welcomeLabel {
+    /* Welcome to Ct.js! */
+
+    position: absolute;
+    width: 248px;
+    height: 44px;
+    left: 20px;
+    top: 46px;
+
+    font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto Thin', Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+    font-style: normal;
+    font-weight: 100;
+    font-size: 32px;
+    line-height: 44px;
+
+    /* identical to box height */
+
+    color: #5144db;
+}
+
+#instructionsLabel {
+    /* You're almost there! Press this big button to open a door to a wonderful world of game development: */
+
+    position: absolute;
+    width: 245px;
+    height: 57px;
+    left: 23px;
+    top: 101px;
+
+    font-family: Open Sans;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 14px;
+    line-height: 19px;
+
+    color: #666666;
+}
+
+#installButtonLabel {
+    /* Install ct.js */
+
+    position: absolute;
+    width: 112px;
+    height: 33px;
+    left: calc(50% - 112px / 2 - 0.5px);
+    top: calc(50% - 33px / 2 - 0.5px);
+
+    font-family: Open Sans;
+    font-style: normal;
+    font-weight: 300;
+    font-size: 24px;
+    line-height: 33px;
+
+    /* identical to box height */
+
+    color: #ffffff;
+
+    background-color: #446adb;
+    border-width: 1px;
+    border-style: solid;
+    border-color: #5144db;
+    border-radius: 3px;
+}
+
+#installButtonLabel:hover {
+    color: #446adb;
+    background-color: #ffffff;
+    border-color: #999999;
+}
+
+/* Installation page */
+
+#installInfoLabel_1 {
+    /* Get release info */
+
+    position: absolute;
+    width: 245px;
+    height: 112px;
+    left: 46px;
+    top: 97px;
+
+    font-family: Open Sans;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 14px;
+    line-height: 28px;
+
+    /* or 200% */
+
+    color: #666666;
+}
+
+#installInfoLabel_2 {
+    /* Download the app */
+
+    position: absolute;
+    width: 245px;
+    height: 112px;
+    left: 46px;
+    top: 97px;
+
+    font-family: Open Sans;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 14px;
+    line-height: 28px;
+
+    /* or 200% */
+
+    color: #666666;
+}
+
+#installInfoLabel_3 {
+    /* Unpack and install ct.js */
+
+    position: absolute;
+    width: 245px;
+    height: 112px;
+    left: 46px;
+    top: 97px;
+
+    font-family: Open Sans;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 14px;
+    line-height: 28px;
+
+    /* or 200% */
+
+    color: #666666;
+}
+
+#installInfoLabel_4 {
+    /* Create shortcuts and file rules */
+
+    position: absolute;
+    width: 245px;
+    height: 112px;
+    left: 46px;
+    top: 97px;
+
+    font-family: Open Sans;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 14px;
+    line-height: 28px;
+
+    /* or 200% */
+
+    color: #666666;
+}
+
+#etaLabel {
+    /* This will take about 50 seconds. */
+
+    position: absolute;
+    width: 177px;
+    height: 24px;
+    left: 20px;
+    top: 261px;
+
+    font-family: Open Sans;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 12px;
+    line-height: 24px;
+
+    /* identical to box height, or 200% */
+
+    color: #666666;
+}
+
+/* Shared */
+
+#bottomRowTextLabel {
+    /* Installing at C:\Users\user\AppData\Local\ct.js */
+    /* Pro tip: use the same installer to update ct.js! */
+
+    position: absolute;
+    width: 300px;
+    height: 19px;
+    left: 21px;
+    top: calc(50% - 19px / 2 - 0.5px);
+
+    font-family: Open Sans;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 14px;
+    line-height: 19px;
+
+    /* identical to box height */
+
+    color: #666666;
+}
+
+#changeAbortLabel {
+    /* Change... */
+    /* Abort */
+
+    position: absolute;
+    width: 61px;
+    height: 19px;
+    left: calc(50% - 61px / 2);
+    top: calc(50% - 19px / 2 - 0.5px);
+
+    font-family: Open Sans;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 14px;
+    line-height: 19px;
+
+    /* identical to box height */
+
+    color: #5144db;
+
+    background-color: #FAFAFA;
+    border-width: 1px;
+    border-style: solid;
+    border-color: #446adb;
+    border-radius: 3px;
+}
+
+#changeAbortLabel:hover {
+    color: #FAFAFA;
+    background-color: #5144db;
+    border-color: #446adb;
+}
+
+/*
+#bottomRowTextBox {
+    position: absolute;
+    height: 54px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+}
+
+#windowBorderBox {
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    top: 32px;
+    bottom: 0px;
+
+    background: #ffffff;
+    border: 1px solid #c8cdd1;
+    box-sizing: border-box;
+}
+*/
