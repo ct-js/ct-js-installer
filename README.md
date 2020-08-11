@@ -32,8 +32,9 @@ Run `./build.sh` to build the installer.
             -   hopefully works
         -   [x] run bat/sh files that create shortcuts/file rules
         -   [ ] eta
--   [ ] figure out pyinstaller/py2app/py2exe
+-   [x] figure out pyinstaller/py2app/py2exe
     -   [x] windows
-    -   [ ] mac
-    -   [ ] linux
--   [ ] integrate everything into travis
+    -   [x] mac
+        -   getting a error when running about not being able to find the python image :/
+    -   [x] linux
+-   [x] integrate everything into travis
