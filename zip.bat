@@ -1,4 +1,5 @@
 :: Zips the .exe file
-powershell "Compress-Archive dist/*.exe ctjs-installer-windows.zip"
+copy dist /Y ctjs-installer-windows
+powershell "Compress-Archive ctjs-installer-windows/*.exe ctjs-installer-windows.zip"
 mkdir zip
 move ctjs-installer-windows.zip zip

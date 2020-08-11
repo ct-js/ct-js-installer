@@ -1,4 +1,5 @@
 # Zips the .app file
-zip ctjs-installer-mac dist/*.app/**/*
+cp -v -f -R dist ctjs-installer-mac
+zip ctjs-installer-mac ctjs-installer-mac/*.app/**/* ctjs-installer-mac/*.app/**/**/*
 mkdir zip
 mv ctjs-installer-mac.zip zip

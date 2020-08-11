@@ -97,6 +97,8 @@ build
 build/
 zip
 zip/
+ctjs-installer*
+ctjs-installer*/
 __pycache__
 __pycache__/
 **/__pycache__
