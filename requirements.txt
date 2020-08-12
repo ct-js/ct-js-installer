@@ -3,3 +3,4 @@ pyshortcuts
 PyInstaller
 black
 pip
+requests
