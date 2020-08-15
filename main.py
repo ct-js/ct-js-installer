@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtCore import Qt, QThread
 from PyQt5.QtGui import QMovie, QPainter, QPixmap, QImage
-from PyQt5 import QtGui, QtCore, QtWidgets
+from PyQt5 import QtGui, QtCore, QtWidgets, QtSvg
 
 from platform import platform
 import sys
@@ -216,6 +216,8 @@ class PlatformStuff:
 
             with open(secondLocation, "w") as f:
                 f.write(contents)
+            program = "chmod +x '" + secondLocation + "'"
+            runCommand(program)
         except:
             showShortcutsWarning()
 
@@ -250,9 +252,9 @@ class InstallThread(QThread):
         print(" ")
 
     def changeStep(self, name):
-        self.app.currentStep.setPixmap(QPixmap(getAsset("check-circle.svg")))
+        self.app.currentStep.load(getAsset("check-circle.svg"))
         self.app.currentStep = self.app.__dict__[name]
-        self.app.currentStep.setPixmap(QPixmap(getAsset("rotate-cw.svg")))
+        self.app.currentStep.load(getAsset("rotate-cw.svg"))
 
     def run(self):
         self.getRelease(platformStuff.channel)
@@ -294,7 +296,7 @@ class InstallThread(QThread):
         print(" ")
         self.app.changeAbortLabel.setText(Contants.changeAbortLabel_3)
         print(" ")
-        self.app.currentStep.setPixmap(QPixmap(getAsset("check-circle.svg")))
+        self.app.currentStep.load(getAsset("check-circle.svg"))
         print(" ")
         self.app.currentStep = null
         self.app.doneInstalling = true
@@ -358,11 +360,9 @@ class Installer(QDialog):
         self.changeAbortLabel.clicked.connect(self.changeLocation)
         self.setStyleName("changeAbortLabel")
 
-        self.hammerCatImage = QLabel(parent=self)
-        image = QPixmap(getAsset("HammerCat.svg"))
-        self.hammerCatImage.setPixmap(image)
-        self.hammerCatImage.resize(image.width(), image.height())
-        self.hammerCatImage.move(481 - image.width(), 34)
+        self.hammerCatImage = QtSvg.QSvgWidget(getAsset("HammerCat.svg"), self)
+        self.hammerCatImage.resize(171, 207)
+        self.hammerCatImage.move(481 - 171, 34)
 
     def updateLocation(self):
         self.bottomRowTextLabel.setText(Contants.bottomRowTextLabel_1 + self.location)
@@ -399,39 +399,27 @@ class Installer(QDialog):
 
         # Images
 
-        self.installInfoImage_1 = QLabel(parent=self)
-        image_1 = QPixmap(getAsset("rotate-cw.svg"))
-        self.installInfoImage_1.setPixmap(image_1)
-        self.installInfoImage_1.resize(image_1.width(), image_1.height())
+        self.installInfoImage_1 = QtSvg.QSvgWidget(getAsset("rotate-cw.svg"), self)
+        self.installInfoImage_1.resize(16, 16)
         self.installInfoImage_1.move(20, 72)
         self.installInfoImage_1.show()
 
-        self.installInfoImage_2 = QLabel(parent=self)
-        image_2 = QPixmap(getAsset("circle.svg"))
-        self.installInfoImage_2.setPixmap(image_2)
-        self.installInfoImage_2.resize(image_2.width(), image_2.height())
+        self.installInfoImage_2 = QtSvg.QSvgWidget(getAsset("circle.svg"), self)
+        self.installInfoImage_2.resize(16, 16)
         self.installInfoImage_2.move(20, 100)
         self.installInfoImage_2.show()
 
-        self.installInfoImage_3 = QLabel(parent=self)
-        image_3 = QPixmap(getAsset("circle.svg"))
-        self.installInfoImage_3.setPixmap(image_3)
-        self.installInfoImage_3.resize(image_3.width(), image_3.height())
+        self.installInfoImage_3 = QtSvg.QSvgWidget(getAsset("circle.svg"), self)
+        self.installInfoImage_3.resize(16, 16)
         self.installInfoImage_3.move(20, 128)
         self.installInfoImage_3.show()
 
-        self.installInfoImage_4 = QLabel(parent=self)
-        image_4 = QPixmap(getAsset("circle.svg"))
-        self.installInfoImage_4.setPixmap(image_4)
-        self.installInfoImage_4.resize(image_4.width(), image_4.height())
+        self.installInfoImage_4 = QtSvg.QSvgWidget(getAsset("circle.svg"), self)
+        self.installInfoImage_4.resize(16, 16)
         self.installInfoImage_4.move(20, 155)
         self.installInfoImage_4.show()
 
         self.currentStep = self.installInfoImage_1
-
-        # self.gif = QMovie(getAsset("partycarrot.gif"))
-        # self.gif.frameChanged.connect(self.repaint)
-        # self.gif.start()
 
         self.installThread = InstallThread(self.location, self)
         self.installThread.start()
