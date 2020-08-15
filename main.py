@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import (
     QPushButton,
     QMessageBox,
     QFileDialog,
+    QProgressBar,
 )
 from PyQt5.QtCore import Qt, QThread
 from PyQt5.QtGui import QMovie, QPainter, QPixmap, QImage
@@ -81,7 +82,9 @@ githubData = {}
 
 
 # https://stackoverflow.com/questions/9419162/download-returned-zip-file-from-url#14260592
-def downloadUrl(url, save_path=Contants.downloadedFilePath, chunk_size=128):
+def downloadUrl(
+    app: "Installer", url, save_path=Contants.downloadedFilePath, chunk_size=128
+):
     r = requests.get(url, stream=True)
     print("Downloading " + url + " to " + save_path)
     try:
@@ -247,7 +250,7 @@ class InstallThread(QThread):
         print(" ")
         url = release["browser_download_url"]
         print(" ")
-        downloadUrl(url)
+        downloadUrl(self.app, url)
         self.changeStep("installInfoImage_3")
         print(" ")
 
