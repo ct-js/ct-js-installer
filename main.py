@@ -331,7 +331,6 @@ class Installer(QDialog):
 
         self.welcomeLabel = QLabel(Contants.welcomeLabel_1, parent=self)
         self.welcomeLabel.move(20, 14)
-        self.welcomeLabel.setFont(QtGui.QFont("Open Sans", 32, QtGui.QFont.Light))
         self.setStyleName("welcomeLabel")
 
         self.instructionsLabel = QLabel(Contants.instructionsLabel, parent=self)
