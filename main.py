@@ -18,13 +18,8 @@ from platform import platform
 import sys
 import os
 from os import path
-import requests
 import tempfile
-import zipfile
-import time
 import shutil
-import subprocess
-import pyshortcuts
 
 is64bits = sys.maxsize > 2 ** 32
 
@@ -92,6 +87,7 @@ def downloadUrl(
         pass
     # https://stackoverflow.com/questions/15644964/python-progress-bar-and-downloads#15645088
     with open(save_path, "wb") as f:
+        import requests
         response = requests.get(url, stream=True)
         total_length = response.headers.get("content-length")
 
@@ -133,6 +129,7 @@ def getAsset(name):
 
 def runCommand(command: str):
     print(f"running command: {command}")
+    import subprocess
     subprocess.Popen(command, shell=True)
 
 
@@ -198,6 +195,7 @@ class PlatformStuff:
         runCommand(program)
 
         try:
+            import pyshortcuts
             os.symlink(
                 path.join(app.location, "ct.js", "ctjs.app"),
                 path.join(pyshortcuts.get_desktop(), "ctjs.app"),
@@ -223,6 +221,7 @@ class PlatformStuff:
             with open(getAsset(desktopFileName), "r") as f:
                 contents = f.read().replace("{installDir}", app.location)
 
+            import pyshortcuts
             from pyshortcuts.linux import get_homedir
 
             home = get_homedir()
@@ -258,6 +257,7 @@ class InstallThread(QThread):
         self.wait()
 
     def getGitHubData(self):
+        import requests
         githubData = requests.get(Contants.githubUrl).json()
         self.changeStep("installInfoImage_2")
         print(" ")
@@ -280,6 +280,8 @@ class InstallThread(QThread):
         self.app.currentStep.load(getAsset("rotate-cw.svg"))
 
     def run(self):
+        import zipfile
+
         self.getRelease(platformStuff.channel)
         print(" ")
         zipFolderName = platformStuff.channel
@@ -292,6 +294,7 @@ class InstallThread(QThread):
                 pass
             zip_ref.extractall(self.location)
 
+        import time
         time.sleep(0.5)
         try:
             shutil.rmtree(os.path.join(self.location, "ct.js"))
