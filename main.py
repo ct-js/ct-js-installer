@@ -474,7 +474,7 @@ class Installer(QDialog):
 
             else:
                 # Linux hopefully
-                program = "& '" + self.location + "/ct.js/ctjs'"
+                program = "'" + self.location + "/ct.js/ctjs' &"
 
             runCommand(program)
             sys.exit()
