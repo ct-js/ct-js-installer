@@ -65,9 +65,7 @@
 }
 
 #installButtonLabel:hover {
-    color: #446adb;
-    background-color: #ffffff;
-    border-color: #999999;
+    background-color: #5144db;
 }
 
 /* Installation page */
@@ -224,8 +222,8 @@
 
 #changeAbortLabel:hover {
     color: #fafafa;
-    background-color: #5144db;
-    border-color: #446adb;
+    background-color: #446adb;
+    border-color: #5144db;
 }
 
 /*
