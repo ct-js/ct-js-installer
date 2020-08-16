@@ -277,8 +277,7 @@ class InstallThread(QThread):
     def changeStep(self, name):
         self.app.currentStep.load(getAsset("check-circle.svg"))
         self.app.currentStep = self.app.__dict__[name]
-        self.app.currentStep.load(getAsset("rotate-cw.svg"))
-
+        self.app.currentStep.load(getAsset("clock.svg"))
     def run(self):
         self.getRelease(platformStuff.channel)
         print(" ")
@@ -432,7 +431,7 @@ class Installer(QDialog):
 
         # Images
 
-        self.installInfoImage_1 = QtSvg.QSvgWidget(getAsset("rotate-cw.svg"), self)
+        self.installInfoImage_1 = QtSvg.QSvgWidget(getAsset("clock.svg"), self)
         self.installInfoImage_1.resize(16, 16)
         self.installInfoImage_1.move(20, 72)
         self.installInfoImage_1.show()
