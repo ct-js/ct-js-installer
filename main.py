@@ -83,17 +83,36 @@ githubData = {}
 
 # https://stackoverflow.com/questions/9419162/download-returned-zip-file-from-url#14260592
 def downloadUrl(
-    app: "Installer", url, save_path=Contants.downloadedFilePath, chunk_size=128
+    app: "Installer", url, save_path=Contants.downloadedFilePath, chunk_size=1024
 ):
-    r = requests.get(url, stream=True)
     print("Downloading " + url + " to " + save_path)
     try:
         os.mkdir(os.path.dirname(save_path))
     except:
         pass
-    with open(save_path, "wb") as fd:
-        for chunk in r.iter_content(chunk_size=chunk_size):
-            fd.write(chunk)
+    # https://stackoverflow.com/questions/15644964/python-progress-bar-and-downloads#15645088
+    with open(save_path, "wb") as f:
+        response = requests.get(url, stream=True)
+        total_length = response.headers.get("content-length")
+
+        if total_length is None:  # no content length header
+            f.write(response.content)
+        else:
+            progressBarTotal = 100
+            dl = 0
+            total_length = int(total_length)
+            for data in response.iter_content(chunk_size=chunk_size):
+                dl += len(data)
+                f.write(data)
+                done = int(progressBarTotal * dl / total_length)
+                sys.stdout.write("\r[%s / %s]" % (done, progressBarTotal))
+                sys.stdout.flush()
+                app.pbar.setValue(done)
+                # sys.stdout.write(
+                #    "\r[%s%s]" % ("=" * done, " " * (progressBarTotal - done))
+                # )
+                # sys.stdout.flush()
+    print(" ")
     print("Finished downloading " + url + " to " + save_path)
 
 
@@ -250,6 +269,7 @@ class InstallThread(QThread):
         print(" ")
         url = release["browser_download_url"]
         print(" ")
+        self.app.pbar.show()
         downloadUrl(self.app, url)
         self.changeStep("installInfoImage_3")
         print(" ")
@@ -304,6 +324,11 @@ class InstallThread(QThread):
         self.app.currentStep = null
         self.app.doneInstalling = true
         self.app.setWindowTitle("Done installing ct.js!")
+
+        try:
+            os.remove(Contants.downloadedFilePath)
+        except:
+            pass
 
 
 class Installer(QDialog):
@@ -379,6 +404,12 @@ class Installer(QDialog):
         self.instructionsLabel.hide()
         self.installButtonLabel.hide()
 
+        self.pbar = QProgressBar(self)
+        self.pbar.move(20, 229)
+        self.pbar.resize(177, 22)
+        # self.setStyleName("pbar")
+        self.pbar.hide()
+
         self.installInfoLabel_1 = QLabel(Contants.installInfoLabel_1, parent=self)
         self.installInfoLabel_1.move(46, 71)
         self.setStyleName("installInfoLabel_1")
@@ -450,6 +481,10 @@ class Installer(QDialog):
             return
         if self.installing:
             # Abort button
+            try:
+                os.remove(Contants.downloadedFilePath)
+            except:
+                pass
             sys.exit()
             return
         # Change button
