@@ -35,7 +35,7 @@ else:
         installDirectoryParent = os.path.join(installDirectoryParent, "Applications")
 
 
-class Contants:
+class Constants:
     ########### Text
     welcomeLabel_1 = "Welcome to Ct.js!"
     instructionsLabel = "You're almost there! Press this big button to open a door to a wonderful world of game development: "
@@ -66,10 +66,10 @@ class Contants:
     githubUrl = "https://api.github.com/repos/ct-js/ct-js/releases/latest"
 
 
-print("Default installation directory location: " + Contants.defaultInstallDir)
+print("Default installation directory location: " + Constants.defaultInstallDir)
 print(
     "Default installation directory location exists: "
-    + os.path.exists(Contants.defaultInstallDir).__str__()
+    + os.path.exists(Constants.defaultInstallDir).__str__()
 )
 
 
@@ -78,7 +78,7 @@ githubData = {}
 
 # https://stackoverflow.com/questions/9419162/download-returned-zip-file-from-url#14260592
 def downloadUrl(
-    app: "Installer", url, save_path=Contants.downloadedFilePath, chunk_size=1024
+    app: "Installer", url, save_path=Constants.downloadedFilePath, chunk_size=1024
 ):
     print("Downloading " + url + " to " + save_path)
     try:
@@ -88,6 +88,7 @@ def downloadUrl(
     # https://stackoverflow.com/questions/15644964/python-progress-bar-and-downloads#15645088
     with open(save_path, "wb") as f:
         import requests
+
         response = requests.get(url, stream=True)
         total_length = response.headers.get("content-length")
 
@@ -130,6 +131,7 @@ def getAsset(name):
 def runCommand(command: str):
     print(f"running command: {command}")
     import subprocess
+
     subprocess.Popen(command, shell=True)
 
 
@@ -196,6 +198,7 @@ class PlatformStuff:
 
         try:
             import pyshortcuts
+
             os.symlink(
                 path.join(app.location, "ct.js", "ctjs.app"),
                 path.join(pyshortcuts.get_desktop(), "ctjs.app"),
@@ -258,7 +261,8 @@ class InstallThread(QThread):
 
     def getGitHubData(self):
         import requests
-        githubData = requests.get(Contants.githubUrl).json()
+
+        githubData = requests.get(Constants.githubUrl).json()
         self.changeStep("installInfoImage_2")
         print(" ")
         return githubData
@@ -287,7 +291,7 @@ class InstallThread(QThread):
         zipFolderName = platformStuff.channel
         print(" ")
 
-        with zipfile.ZipFile(Contants.downloadedFilePath, "r") as zip_ref:
+        with zipfile.ZipFile(Constants.downloadedFilePath, "r") as zip_ref:
             try:
                 zipFolderName = os.path.dirname(zip_ref.namelist()[0])
             except:
@@ -295,6 +299,7 @@ class InstallThread(QThread):
             zip_ref.extractall(self.location)
 
         import time
+
         time.sleep(0.5)
         try:
             shutil.rmtree(os.path.join(self.location, "ct.js"))
@@ -318,9 +323,9 @@ class InstallThread(QThread):
         platformStuff.shortcuts(self.app)
         print(" ")
 
-        self.app.welcomeLabel.setText(Contants.welcomeLabel_3)
+        self.app.welcomeLabel.setText(Constants.welcomeLabel_3)
         print(" ")
-        self.app.changeAbortLabel.setText(Contants.changeAbortLabel_3)
+        self.app.changeAbortLabel.setText(Constants.changeAbortLabel_3)
         print(" ")
         self.app.currentStep.load(getAsset("check-circle.svg"))
         print(" ")
@@ -329,7 +334,7 @@ class InstallThread(QThread):
         self.app.setWindowTitle("Done installing ct.js!")
 
         try:
-            os.remove(Contants.downloadedFilePath)
+            os.remove(Constants.downloadedFilePath)
         except:
             pass
 
@@ -351,7 +356,7 @@ class Installer(QDialog):
         self.setGeometry(self.left, self.top, self.width, self.height)
         self.setFixedSize(self.width, self.height)
 
-        self.location = Contants.defaultInstallDir
+        self.location = Constants.defaultInstallDir
 
         self.installing = false
         self.doneInstalling = false
@@ -360,31 +365,31 @@ class Installer(QDialog):
 
         # First page
 
-        self.welcomeLabel = QLabel(Contants.welcomeLabel_1, parent=self)
+        self.welcomeLabel = QLabel(Constants.welcomeLabel_1, parent=self)
         self.welcomeLabel.move(20, 14)
         self.setStyleName("welcomeLabel")
 
-        self.instructionsLabel = QLabel(Contants.instructionsLabel, parent=self)
+        self.instructionsLabel = QLabel(Constants.instructionsLabel, parent=self)
         self.instructionsLabel.move(23, 69)
         self.instructionsLabel.resize(245, 57)
         self.instructionsLabel.setWordWrap(true)
         self.setStyleName("instructionsLabel")
 
-        self.installButtonLabel = QPushButton(Contants.installButtonLabel, self)
+        self.installButtonLabel = QPushButton(Constants.installButtonLabel, self)
         self.installButtonLabel.move(23, 148)
         self.installButtonLabel.resize(185, 60)
         self.installButtonLabel.clicked.connect(self.install)
         self.setStyleName("installButtonLabel")
 
         self.bottomRowTextLabel = QLabel(
-            Contants.bottomRowTextLabel_1 + self.location, parent=self
+            Constants.bottomRowTextLabel_1 + self.location, parent=self
         )
         self.bottomRowTextLabel.move(21, 281)
         self.bottomRowTextLabel.resize(340, 19)
         self.bottomRowTextLabel.setWordWrap(false)
         self.setStyleName("bottomRowTextLabel")
 
-        self.changeAbortLabel = QPushButton(Contants.changeAbortLabel_1, self)
+        self.changeAbortLabel = QPushButton(Constants.changeAbortLabel_1, self)
         self.changeAbortLabel.move(369, 275)
         self.changeAbortLabel.resize(113, 32)
         self.changeAbortLabel.clicked.connect(self.changeLocation)
@@ -395,15 +400,15 @@ class Installer(QDialog):
         self.hammerCatImage.move(481 - 171, 34)
 
     def updateLocation(self):
-        self.bottomRowTextLabel.setText(Contants.bottomRowTextLabel_1 + self.location)
+        self.bottomRowTextLabel.setText(Constants.bottomRowTextLabel_1 + self.location)
 
     def install(self):
         self.installing = true
         self.setWindowTitle("Installing ct.js...")
 
-        self.welcomeLabel.setText(Contants.welcomeLabel_2)
-        self.changeAbortLabel.setText(Contants.changeAbortLabel_2)
-        self.bottomRowTextLabel.setText(Contants.bottomRowTextLabel_2)
+        self.welcomeLabel.setText(Constants.welcomeLabel_2)
+        self.changeAbortLabel.setText(Constants.changeAbortLabel_2)
+        self.bottomRowTextLabel.setText(Constants.bottomRowTextLabel_2)
         self.instructionsLabel.hide()
         self.installButtonLabel.hide()
 
@@ -413,22 +418,22 @@ class Installer(QDialog):
         # self.setStyleName("pbar")
         self.pbar.hide()
 
-        self.installInfoLabel_1 = QLabel(Contants.installInfoLabel_1, parent=self)
+        self.installInfoLabel_1 = QLabel(Constants.installInfoLabel_1, parent=self)
         self.installInfoLabel_1.move(46, 71)
         self.setStyleName("installInfoLabel_1")
         self.installInfoLabel_1.show()
 
-        self.installInfoLabel_2 = QLabel(Contants.installInfoLabel_2, parent=self)
+        self.installInfoLabel_2 = QLabel(Constants.installInfoLabel_2, parent=self)
         self.installInfoLabel_2.move(46, 99)
         self.setStyleName("installInfoLabel_2")
         self.installInfoLabel_2.show()
 
-        self.installInfoLabel_3 = QLabel(Contants.installInfoLabel_3, parent=self)
+        self.installInfoLabel_3 = QLabel(Constants.installInfoLabel_3, parent=self)
         self.installInfoLabel_3.move(46, 127)
         self.setStyleName("installInfoLabel_3")
         self.installInfoLabel_3.show()
 
-        self.installInfoLabel_4 = QLabel(Contants.installInfoLabel_4, parent=self)
+        self.installInfoLabel_4 = QLabel(Constants.installInfoLabel_4, parent=self)
         self.installInfoLabel_4.move(46, 155)
         self.setStyleName("installInfoLabel_4")
         self.installInfoLabel_4.show()
@@ -485,7 +490,7 @@ class Installer(QDialog):
         if self.installing:
             # Abort button
             try:
-                os.remove(Contants.downloadedFilePath)
+                os.remove(Constants.downloadedFilePath)
             except:
                 pass
             sys.exit()
