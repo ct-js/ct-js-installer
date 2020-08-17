@@ -21,11 +21,14 @@ from os import path
 import tempfile
 import shutil
 
-is64bits = sys.maxsize > 2 ** 32
+print(" ")
 
 null = None
 true = True
 false = False
+
+is64bits = sys.maxsize > 2 ** 32
+gui = false
 
 if "win" in platform().lower() and not "darwin" in platform().lower():
     installDirectoryParent = os.environ["LOCALAPPDATA"]
@@ -104,7 +107,10 @@ def downloadUrl(
                 done = int(progressBarTotal * dl / total_length)
                 sys.stdout.write("\r[%s / %s]" % (done, progressBarTotal))
                 sys.stdout.flush()
-                app.pbar.setValue(done)
+                try:
+                    app.pbar.setValue(done)
+                except:
+                    pass
                 # sys.stdout.write(
                 #    "\r[%s%s]" % ("=" * done, " " * (progressBarTotal - done))
                 # )
@@ -136,11 +142,14 @@ def runCommand(command: str):
 
 
 def showShortcutsWarning():
-    msg = QMessageBox()
-    msg.setIcon(QMessageBox.Warning)
-    msg.setText("Creating shortcuts have failed. You may want to re-run the installer.")
-    msg.setWindowTitle("Warning")
-    msg.show()
+    if gui == true:
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Warning)
+        msg.setText(
+            "Creating shortcuts have failed. You may want to re-run the installer."
+        )
+        msg.setWindowTitle("Warning")
+        msg.show()
 
 
 class PlatformStuff:
@@ -164,33 +173,31 @@ class PlatformStuff:
                 self.channel = "linux64"
         print(f"Channel: {self.channel}")
 
-    def windowsShortcuts(self, app: "Installer"):
+    def windowsShortcuts(self, app: "Installer", location):
         print(" ")
         try:
 
             def create_shortcuts(tool_name, exe_path, icon_path):
                 with open(getAsset("create_shortcuts.bat"), "r") as f:
-                    contents = f.read().replace("{installDir}", app.location)
+                    contents = f.read().replace("{installDir}", location)
 
                 program = contents
                 runCommand(program)
 
             create_shortcuts(
                 "ct.js",
-                path.join(app.location, "ct.js", "ctjs.exe"),
-                path.join(app.location, "ct.js", "ct_ide.png"),
+                path.join(location, "ct.js", "ctjs.exe"),
+                path.join(location, "ct.js", "ct_ide.png"),
             )
 
         except:
             showShortcutsWarning()
 
-    def macShortcuts(self, app: "Installer"):
+    def macShortcuts(self, app: "Installer", location):
         program = (
             "chmod +x '"
             + path.abspath(
-                path.join(
-                    app.location, "ct.js", "ctjs.app", "Contents", "MacOS", "nwjs"
-                )
+                path.join(location, "ct.js", "ctjs.app", "Contents", "MacOS", "nwjs")
             )
             + "'"
         )
@@ -200,20 +207,18 @@ class PlatformStuff:
             import pyshortcuts
 
             os.symlink(
-                path.join(app.location, "ct.js", "ctjs.app"),
+                path.join(location, "ct.js", "ctjs.app"),
                 path.join(pyshortcuts.get_desktop(), "ctjs.app"),
             )
         except:
             showShortcutsWarning()
 
-    def linuxShortcuts(self, app: "Installer"):
+    def linuxShortcuts(self, app: "Installer", location):
         exeFiles = ["chromedriver", "ctjs", "nwjc"]
         for i in exeFiles:
             try:
                 program = (
-                    "chmod +x '"
-                    + path.abspath(path.join(app.location, "ct.js", i))
-                    + "'"
+                    "chmod +x '" + path.abspath(path.join(location, "ct.js", i)) + "'"
                 )
                 runCommand(program)
             except:
@@ -222,7 +227,7 @@ class PlatformStuff:
         try:
             desktopFileName = "ct.js.desktop"
             with open(getAsset(desktopFileName), "r") as f:
-                contents = f.read().replace("{installDir}", app.location)
+                contents = f.read().replace("{installDir}", location)
 
             import pyshortcuts
             from pyshortcuts.linux import get_homedir
@@ -250,11 +255,14 @@ platformStuff = PlatformStuff()
 
 
 class InstallThread(QThread):
-    def __init__(self, location, parent):
+    def __init__(self, location, parent=null):
         QThread.__init__(self)
 
         self.location = location
         self.app: Installer = parent
+
+        print("InstallThread installation location:", self.location)
+        print("InstallThread actual location:      ", path.join(self.location, "ct.js"))
 
     def __del__(self):
         self.wait()
@@ -273,15 +281,21 @@ class InstallThread(QThread):
         print(" ")
         url = release["browser_download_url"]
         print(" ")
-        self.app.pbar.show()
+        try:
+            self.app.pbar.show()
+        except:
+            pass
         downloadUrl(self.app, url)
         self.changeStep("installInfoImage_3")
         print(" ")
 
     def changeStep(self, name):
-        self.app.currentStep.load(getAsset("check-circle.svg"))
-        self.app.currentStep = self.app.__dict__[name]
-        self.app.currentStep.load(getAsset("clock.svg"))
+        try:
+            self.app.currentStep.load(getAsset("check-circle.svg"))
+            self.app.currentStep = self.app.__dict__[name]
+            self.app.currentStep.load(getAsset("clock.svg"))
+        except:
+            pass
 
     def run(self):
         import zipfile
@@ -291,6 +305,7 @@ class InstallThread(QThread):
         zipFolderName = platformStuff.channel
         print(" ")
 
+        print("Unpacking the zip")
         with zipfile.ZipFile(Constants.downloadedFilePath, "r") as zip_ref:
             try:
                 zipFolderName = os.path.dirname(zip_ref.namelist()[0])
@@ -314,16 +329,15 @@ class InstallThread(QThread):
 
         from shutil import copyfile
 
-        copyfile(
-            getAsset("icon.ico"), path.join(self.app.location, "ct.js", "ctjs.ico")
-        )
+        copyfile(getAsset("icon.ico"), path.join(self.location, "ct.js", "ctjs.ico"))
 
         self.changeStep("installInfoImage_4")
         print(" ")
-        platformStuff.shortcuts(self.app)
+        platformStuff.shortcuts(self.app, self.location)
         print(" ")
 
         try:
+            print("Deleting temporary zip")
             os.remove(Constants.downloadedFilePath)
             print(" ")
         except:
@@ -336,9 +350,7 @@ class InstallThread(QThread):
             try:
                 copyfile(
                     application_path,
-                    path.join(
-                        self.app.location, "ct.js", path.basename(application_path)
-                    ),
+                    path.join(self.location, "ct.js", path.basename(application_path)),
                 )
                 print(" ")
             except:
@@ -349,15 +361,20 @@ class InstallThread(QThread):
             )
             print(" ")
 
-        self.app.welcomeLabel.setText(Constants.welcomeLabel_3)
-        print(" ")
-        self.app.changeAbortLabel.setText(Constants.changeAbortLabel_3)
-        print(" ")
-        self.app.currentStep.load(getAsset("check-circle.svg"))
-        print(" ")
-        self.app.currentStep = null
-        self.app.doneInstalling = true
-        self.app.setWindowTitle("Done installing ct.js!")
+        try:
+            self.app.welcomeLabel.setText(Constants.welcomeLabel_3)
+            print(" ")
+            self.app.changeAbortLabel.setText(Constants.changeAbortLabel_3)
+            print(" ")
+            self.app.currentStep.load(getAsset("check-circle.svg"))
+            print(" ")
+            self.app.currentStep = null
+            self.app.doneInstalling = true
+            self.app.setWindowTitle("Done installing ct.js!")
+        except:
+            pass
+
+        print("Done installing!")
 
 
 class Installer(QDialog):
@@ -511,6 +528,7 @@ class Installer(QDialog):
         if self.installing:
             # Abort button
             try:
+                print("Deleting temporary zip since the user aborted")
                 os.remove(Constants.downloadedFilePath)
             except:
                 pass
@@ -558,26 +576,42 @@ class Installer(QDialog):
         return self.__dict__[name].setObjectName(name)
 
 
+print(" ")
+
 if __name__ == "__main__":
-    print("Opening application...")
+    del sys.argv[0]
+    print("Arguments:", sys.argv)
+    print("Current working directory:", os.getcwd())
+    print(" ")
 
-    # https://stackoverflow.com/a/51914685
-    # Tries to solve weird scaling that could occur
-    os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
-    QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
+    if ["update" in x.lower() for x in sys.argv]:
+        print("Updating since 'update' was in one of the arguments")
+        print("Running InstallThread in the current thread")
+        print(" ")
+        installThread = InstallThread(os.getcwd())
+        installThread.run()
+    else:
+        print("Not updating since 'update' wasn't in one of the arguments")
+        print("Running gui")
+        print(" ")
+        # https://stackoverflow.com/a/51914685
+        # Tries to solve weird scaling that could occur
+        os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
+        QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
 
-    app = QApplication([])
+        app = QApplication([])
+        gui = true
 
-    app.setStyle("Fusion")
-    with open(getAsset("stylesheet.css"), "r") as f:
-        app.setStyleSheet(f.read())
+        app.setStyle("Fusion")
+        with open(getAsset("stylesheet.css"), "r") as f:
+            app.setStyleSheet(f.read())
 
-    installer = Installer()
-    installer.show()
+        installer = Installer()
+        installer.show()
 
-    app.setActiveWindow(installer)
+        app.setActiveWindow(installer)
 
-    app.exec_()
+        app.exec_()
 
-    print("Application closed")
-    sys.exit()
+        print("Application closed")
+        sys.exit()
