@@ -226,6 +226,21 @@
     border-color: #5144db;
 }
 
+#pbar {
+    color: #ffffff;
+    background-color: #446adb;
+    border-color: #4033d3;
+    text-align: center;
+    border-radius: 2px;
+}
+
+#pbar:chunk {
+    background-color: #3e2fdd;
+    border-color: #4033d3;
+    text-align: center;
+    border-radius: 2px;
+}
+
 /*
 #bottomRowTextBox {
     position: absolute;

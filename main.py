@@ -436,7 +436,7 @@ class Installer(QDialog):
         self.pbar = QProgressBar(self)
         self.pbar.move(20, 229)
         self.pbar.resize(177, 22)
-        # self.setStyleName("pbar")
+        self.setStyleName("pbar")
         self.pbar.hide()
 
         self.installInfoLabel_1 = QLabel(Constants.installInfoLabel_1, parent=self)

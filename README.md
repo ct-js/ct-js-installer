@@ -40,5 +40,6 @@ Run `./build.sh` to build the installer.
     -   [x] linux
 -   [x] integrate everything into travis
 -   [x] copy the installer to the ct.js directory so it can be run from within ct.js to check for updates
--   [ ] improve the progress bar css
--   [ ] transfer repo and setup travis
+-   [x] improve the progress bar css
+-   [x] transfer repo
+-   [ ] setup travis
