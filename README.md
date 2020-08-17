@@ -39,5 +39,6 @@ Run `./build.sh` to build the installer.
         -   getting a error when running about not being able to find the python image :/
     -   [x] linux
 -   [x] integrate everything into travis
--   [ ] copy the installer to the ct.js directory so it can be run from within ct.js to check for updates
+-   [x] copy the installer to the ct.js directory so it can be run from within ct.js to check for updates
+-   [ ] improve the progress bar css
 -   [ ] transfer repo and setup travis

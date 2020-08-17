@@ -282,6 +282,7 @@ class InstallThread(QThread):
         self.app.currentStep.load(getAsset("check-circle.svg"))
         self.app.currentStep = self.app.__dict__[name]
         self.app.currentStep.load(getAsset("clock.svg"))
+
     def run(self):
         import zipfile
 
@@ -322,6 +323,32 @@ class InstallThread(QThread):
         platformStuff.shortcuts(self.app)
         print(" ")
 
+        try:
+            os.remove(Constants.downloadedFilePath)
+            print(" ")
+        except:
+            pass
+
+        # https://stackoverflow.com/a/404750
+        if getattr(sys, "frozen", False):
+            application_path = os.path.abspath(sys.executable)
+            print(" ")
+            try:
+                copyfile(
+                    application_path,
+                    path.join(
+                        self.app.location, "ct.js", path.basename(application_path)
+                    ),
+                )
+                print(" ")
+            except:
+                pass
+        else:
+            print(
+                "You may be running from source, not copying the executable to the install dir."
+            )
+            print(" ")
+
         self.app.welcomeLabel.setText(Constants.welcomeLabel_3)
         print(" ")
         self.app.changeAbortLabel.setText(Constants.changeAbortLabel_3)
@@ -331,11 +358,6 @@ class InstallThread(QThread):
         self.app.currentStep = null
         self.app.doneInstalling = true
         self.app.setWindowTitle("Done installing ct.js!")
-
-        try:
-            os.remove(Constants.downloadedFilePath)
-        except:
-            pass
 
 
 class Installer(QDialog):
