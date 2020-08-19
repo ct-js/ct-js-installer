@@ -454,9 +454,6 @@ class Installer(QDialog):
         self.hammerCatImage.resize(171, 207)
         self.hammerCatImage.move(481 - 171, 34)
 
-    def updateLocation(self):
-        self.bottomRowTextLabel.setText(Constants.bottomRowTextLabel_1 + self.location)
-
     def install(self):
         self.installing = true
         self.setWindowTitle("Installing ct.js...")
@@ -520,6 +517,9 @@ class Installer(QDialog):
         self.installThread = InstallThread(self.location, self)
         self.installThread.start()
 
+    def updateLocation(self):
+        self.bottomRowTextLabel.setText(Constants.bottomRowTextLabel_1 + self.location)
+
     def changeLocation(self):
         if self.doneInstalling:
             # Open ct.js
@@ -547,6 +547,10 @@ class Installer(QDialog):
             try:
                 print("Deleting temporary zip since the user aborted")
                 os.remove(Constants.downloadedFilePath())
+            except:
+                pass
+            try:
+                self.installThread.exit(0)
             except:
                 pass
             sys.exit()
@@ -601,34 +605,40 @@ if __name__ == "__main__":
     print("Current working directory:", os.getcwd())
     print(" ")
 
-    if ["update" in x.lower() for x in sys.argv]:
-        print("Updating since 'update' was in one of the arguments")
-        print("Running InstallThread in the current thread")
-        print(" ")
-        installThread = InstallThread(os.getcwd())
-        installThread.run()
-    else:
-        print("Not updating since 'update' wasn't in one of the arguments")
-        print("Running gui")
-        print(" ")
-        # https://stackoverflow.com/a/51914685
-        # Tries to solve weird scaling that could occur
-        os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
-        QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
+    print("Running gui")
+    print(" ")
+    # https://stackoverflow.com/a/51914685
+    # Tries to solve weird scaling that could occur
+    os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
+    QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
 
-        app = QApplication([])
-        gui = true
+    app = QApplication([])
+    gui = true
 
-        app.setStyle("Fusion")
-        with open(getAsset("stylesheet.css"), "r") as f:
-            app.setStyleSheet(f.read())
+    app.setStyle("Fusion")
+    with open(getAsset("stylesheet.css"), "r") as f:
+        app.setStyleSheet(f.read())
 
-        installer = Installer()
-        installer.show()
+    installer = Installer()
+    installer.show()
 
-        app.setActiveWindow(installer)
+    # Try to get location from arguments
+    try:
+        installer.location = path.dirname(sys.argv[0])
+        installer.updateLocation()
+        installFolderName = path.basename(sys.argv[0])
+        print(
+            "Location from arguments:",
+            installer.location,
+            "\nFolder name from arguments:",
+            installFolderName,
+        )
+    except:
+        pass
 
-        app.exec_()
+    app.setActiveWindow(installer)
 
-        print("Application closed")
-        sys.exit()
+    app.exec_()
+
+    print("Application closed")
+    sys.exit()
