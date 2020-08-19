@@ -29,6 +29,7 @@ false = False
 
 is64bits = sys.maxsize > 2 ** 32
 gui = false
+installFolderName = "ct.js"
 
 if "win" in platform().lower() and not "darwin" in platform().lower():
     installDirectoryParent = os.environ["LOCALAPPDATA"]
@@ -61,8 +62,8 @@ class Constants:
     ########### Path
     defaultInstallDir = os.path.join(installDirectoryParent)
     downloadedFileName = "ctjs-installer-download.zip"
-    downloadedFilePath = os.path.join(
-        tempfile.gettempdir(), "ct.js", downloadedFileName
+    downloadedFilePath = lambda: os.path.join(
+        tempfile.gettempdir(), installFolderName, Constants.downloadedFileName
     )
 
     ########### Other
@@ -80,9 +81,10 @@ githubData = {}
 
 
 # https://stackoverflow.com/questions/9419162/download-returned-zip-file-from-url#14260592
-def downloadUrl(
-    app: "Installer", url, save_path=Constants.downloadedFilePath, chunk_size=1024
-):
+def downloadUrl(app: "Installer", url, save_path="", chunk_size=1024):
+    if save_path == "":
+        save_path = Constants.downloadedFilePath()
+
     print("Downloading " + url + " to " + save_path)
     try:
         os.mkdir(os.path.dirname(save_path))
@@ -186,8 +188,8 @@ class PlatformStuff:
 
             create_shortcuts(
                 "ct.js",
-                path.join(location, "ct.js", "ctjs.exe"),
-                path.join(location, "ct.js", "ct_ide.png"),
+                path.join(location, installFolderName, "ctjs.exe"),
+                path.join(location, installFolderName, "ct_ide.png"),
             )
 
         except:
@@ -197,7 +199,9 @@ class PlatformStuff:
         program = (
             "chmod +x '"
             + path.abspath(
-                path.join(location, "ct.js", "ctjs.app", "Contents", "MacOS", "nwjs")
+                path.join(
+                    location, installFolderName, "ctjs.app", "Contents", "MacOS", "nwjs"
+                )
             )
             + "'"
         )
@@ -207,7 +211,7 @@ class PlatformStuff:
             import pyshortcuts
 
             os.symlink(
-                path.join(location, "ct.js", "ctjs.app"),
+                path.join(location, installFolderName, "ctjs.app"),
                 path.join(pyshortcuts.get_desktop(), "ctjs.app"),
             )
         except:
@@ -218,7 +222,9 @@ class PlatformStuff:
         for i in exeFiles:
             try:
                 program = (
-                    "chmod +x '" + path.abspath(path.join(location, "ct.js", i)) + "'"
+                    "chmod +x '"
+                    + path.abspath(path.join(location, installFolderName, i))
+                    + "'"
                 )
                 runCommand(program)
             except:
@@ -262,7 +268,11 @@ class InstallThread(QThread):
         self.app: Installer = parent
 
         print("InstallThread installation location:", self.location)
-        print("InstallThread actual location:      ", path.join(self.location, "ct.js"))
+        print(
+            "InstallThread actual location:      ",
+            path.join(self.location, installFolderName),
+        )
+        print("Install folder name:", installFolderName)
 
     def __del__(self):
         self.wait()
@@ -306,7 +316,7 @@ class InstallThread(QThread):
         print(" ")
 
         print("Unpacking the zip")
-        with zipfile.ZipFile(Constants.downloadedFilePath, "r") as zip_ref:
+        with zipfile.ZipFile(Constants.downloadedFilePath(), "r") as zip_ref:
             try:
                 zipFolderName = os.path.dirname(zip_ref.namelist()[0])
             except:
@@ -317,19 +327,22 @@ class InstallThread(QThread):
 
         time.sleep(0.5)
         try:
-            shutil.rmtree(os.path.join(self.location, "ct.js"))
+            shutil.rmtree(os.path.join(self.location, installFolderName))
         except:
             pass
 
         os.rename(
             os.path.join(self.location, zipFolderName),
-            os.path.join(self.location, "ct.js"),
+            os.path.join(self.location, installFolderName),
         )
         print(" ")
 
         from shutil import copyfile
 
-        copyfile(getAsset("icon.ico"), path.join(self.location, "ct.js", "ctjs.ico"))
+        copyfile(
+            getAsset("icon.ico"),
+            path.join(self.location, installFolderName, "ctjs.ico"),
+        )
 
         self.changeStep("installInfoImage_4")
         print(" ")
@@ -338,7 +351,7 @@ class InstallThread(QThread):
 
         try:
             print("Deleting temporary zip")
-            os.remove(Constants.downloadedFilePath)
+            os.remove(Constants.downloadedFilePath())
             print(" ")
         except:
             pass
@@ -350,7 +363,11 @@ class InstallThread(QThread):
             try:
                 copyfile(
                     application_path,
-                    path.join(self.location, "ct.js", path.basename(application_path)),
+                    path.join(
+                        self.location,
+                        installFolderName,
+                        path.basename(application_path),
+                    ),
                 )
                 print(" ")
             except:
@@ -529,7 +546,7 @@ class Installer(QDialog):
             # Abort button
             try:
                 print("Deleting temporary zip since the user aborted")
-                os.remove(Constants.downloadedFilePath)
+                os.remove(Constants.downloadedFilePath())
             except:
                 pass
             sys.exit()
