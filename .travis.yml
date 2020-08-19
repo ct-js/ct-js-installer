@@ -23,7 +23,7 @@ jobs:
       before_deploy:
         - ./build.bat
         - ./zip.bat
-script: echo This is here because travis gets mad if there's no 'script' entry in the config.
+script: echo This is here because travis gets mad if theres no script entry in the config.
 install: pip3 install -r ./requirements.txt --upgrade
 deploy:
   # Github Releases
