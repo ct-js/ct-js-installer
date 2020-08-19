@@ -23,8 +23,7 @@ jobs:
       before_deploy:
         - ./build.bat
         - ./zip.bat
-script: exit 0
-before_deploy: pip3 install -r ./requirements.txt --upgrade
+install: pip3 install -r ./requirements.txt --upgrade
 deploy:
   # Github Releases
   - provider: releases
