@@ -437,7 +437,11 @@ class Installer(QDialog):
         self.setStyleName("installButtonLabel")
 
         self.bottomRowTextLabel = QLabel(
-            Constants.bottomRowTextLabel_1 + self.location, parent=self
+            Constants.bottomRowTextLabel_1
+            + self.location
+            + path.sep
+            + installFolderName,
+            parent=self,
         )
         self.bottomRowTextLabel.move(21, 281)
         self.bottomRowTextLabel.resize(340, 19)
@@ -518,7 +522,12 @@ class Installer(QDialog):
         self.installThread.start()
 
     def updateLocation(self):
-        self.bottomRowTextLabel.setText(Constants.bottomRowTextLabel_1 + self.location)
+        self.bottomRowTextLabel.setText(
+            Constants.bottomRowTextLabel_1
+            + self.location
+            + path.sep
+            + installFolderName
+        )
 
     def changeLocation(self):
         if self.doneInstalling:
