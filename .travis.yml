@@ -12,7 +12,7 @@ jobs:
       language: shell
       before_deploy:
         - sh ./build_mac.sh
-        - sh ./zip.sh
+        - sh ./zip_mac.sh
     - name: "Python 3.8.0 on Windows"
       os: windows
       language: shell
