@@ -62,7 +62,7 @@ class Constants:
     bottomRowTextLabel_1 = "Installing at "
     changeAbortLabel_1 = "Change..."
 
-    welcomeLabel_2 = random.choice(json.load(open(getAsset('messages.json')))['messages'])
+    welcomeLabel_2 = random.choice(json.load(open(getAsset('messages.json'))))
     installInfoLabel_1 = "Get release info"
     installInfoLabel_2 = "Download the app"
     installInfoLabel_3 = "Unpack and install ct.js"
@@ -461,7 +461,7 @@ class Installer(QDialog):
 
     def install(self):
         self.installing = true
-        self.setWindowTitle("Installing Ct.js...")
+        self.setWindowTitle("Installing ct.js...")
 
         self.welcomeLabel.setText(Constants.welcomeLabel_2)
         self.changeAbortLabel.setText(Constants.changeAbortLabel_2)
