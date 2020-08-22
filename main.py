@@ -385,9 +385,7 @@ class InstallThread(QThread):
             self.app.currentStep.load(getAsset("check-circle.svg"))
             print(" ")
             self.app.currentStep = null
-            self.app.done
-            
-            = true
+            self.app.done = true
             self.app.setWindowTitle("Done installing ct.js!")
         except:
             pass
