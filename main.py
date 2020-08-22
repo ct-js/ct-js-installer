@@ -50,8 +50,10 @@ def basePath():
 
     return basePath
 
+
 def getAsset(name):
     return os.path.join(basePath(), "assets", name)
+
 
 class Constants:
     ########### Text
@@ -61,7 +63,7 @@ class Constants:
     bottomRowTextLabel_1 = "Installing at "
     changeAbortLabel_1 = "Change..."
 
-    welcomeLabel_2 = random.choice(json.load(open(getAsset('messages.json'))))
+    welcomeLabel_2 = random.choice(json.load(open(getAsset("messages.json"))))
     installInfoLabel_1 = "Get release info"
     installInfoLabel_2 = "Download the app"
     installInfoLabel_3 = "Unpack and install ct.js"
@@ -133,6 +135,7 @@ def downloadUrl(app: "Installer", url, save_path="", chunk_size=1024):
                 # sys.stdout.flush()
     print(" ")
     print("Finished downloading " + url + " to " + save_path)
+
 
 def runCommand(command: str):
     print(f"running command: {command}")
