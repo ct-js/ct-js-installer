@@ -385,7 +385,9 @@ class InstallThread(QThread):
             self.app.currentStep.load(getAsset("check-circle.svg"))
             print(" ")
             self.app.currentStep = null
-            self.app.doneInstalling = true
+            self.app.done
+            
+            = true
             self.app.setWindowTitle("Done installing ct.js!")
         except:
             pass
@@ -459,7 +461,7 @@ class Installer(QDialog):
 
     def install(self):
         self.installing = true
-        self.setWindowTitle("Installing")
+        self.setWindowTitle("Installing Ct.js...")
 
         self.welcomeLabel.setText(Constants.welcomeLabel_2)
         self.changeAbortLabel.setText(Constants.changeAbortLabel_2)
