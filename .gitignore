@@ -103,3 +103,5 @@ __pycache__
 __pycache__/
 **/__pycache__
 ctjs-installer.spec
+
+**/.idea
