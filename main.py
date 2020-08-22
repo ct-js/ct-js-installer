@@ -1,5 +1,5 @@
 import random
-
+import json
 from PyQt5.QtWidgets import (
     QDialog,
     QLabel,
@@ -40,6 +40,19 @@ else:
     if "darwin" in platform().lower():
         installDirectoryParent = os.path.join(installDirectoryParent, "Applications")
 
+# https://stackoverflow.com/a/13790741
+def basePath():
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        basePath = sys._MEIPASS
+    except:
+        basePath = os.path.abspath(".")
+
+    return basePath
+
+# Moved this to load text resources in constants
+def getAsset(name):
+    return os.path.join(basePath(), "assets", name)
 
 class Constants:
     ########### Text
@@ -49,7 +62,7 @@ class Constants:
     bottomRowTextLabel_1 = "Installing at "
     changeAbortLabel_1 = "Change..."
 
-    welcomeLabel_2 = random.choice(open('./assets/messages.txt').read().split('\n'))
+    welcomeLabel_2 = random.choice(json.load(open(getAsset('messages.json')))['messages'])
     installInfoLabel_1 = "Get release info"
     installInfoLabel_2 = "Download the app"
     installInfoLabel_3 = "Unpack and install ct.js"
@@ -121,22 +134,6 @@ def downloadUrl(app: "Installer", url, save_path="", chunk_size=1024):
                 # sys.stdout.flush()
     print(" ")
     print("Finished downloading " + url + " to " + save_path)
-
-
-# https://stackoverflow.com/a/13790741
-def basePath():
-    try:
-        # PyInstaller creates a temp folder and stores path in _MEIPASS
-        basePath = sys._MEIPASS
-    except:
-        basePath = os.path.abspath(".")
-
-    return basePath
-
-
-def getAsset(name):
-    return os.path.join(basePath(), "assets", name)
-
 
 def runCommand(command: str):
     print(f"running command: {command}")
