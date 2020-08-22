@@ -1,3 +1,5 @@
+import random
+
 from PyQt5.QtWidgets import (
     QDialog,
     QLabel,
@@ -47,7 +49,7 @@ class Constants:
     bottomRowTextLabel_1 = "Installing at "
     changeAbortLabel_1 = "Change..."
 
-    welcomeLabel_2 = "Working..."
+    welcomeLabel_2 = random.choice(open('./assets/messages.txt').read().split('\n'))
     installInfoLabel_1 = "Get release info"
     installInfoLabel_2 = "Download the app"
     installInfoLabel_3 = "Unpack and install ct.js"
@@ -460,7 +462,7 @@ class Installer(QDialog):
 
     def install(self):
         self.installing = true
-        self.setWindowTitle("Installing ct.js...")
+        self.setWindowTitle("Installing")
 
         self.welcomeLabel.setText(Constants.welcomeLabel_2)
         self.changeAbortLabel.setText(Constants.changeAbortLabel_2)
