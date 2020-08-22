@@ -50,7 +50,6 @@ def basePath():
 
     return basePath
 
-# Moved this to load text resources in constants
 def getAsset(name):
     return os.path.join(basePath(), "assets", name)
 
