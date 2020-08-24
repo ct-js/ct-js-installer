@@ -129,6 +129,8 @@ def downloadUrl(app: "Installer", url, save_path="", chunk_size=1024):
     if save_path == "":
         save_path = Constants.downloadedFilePath()
 
+    prevMessageChange = 0
+
     print("Downloading " + url + " to " + save_path)
     try:
         os.mkdir(os.path.dirname(save_path))
@@ -151,6 +153,9 @@ def downloadUrl(app: "Installer", url, save_path="", chunk_size=1024):
                 dl += len(data)
                 f.write(data)
                 done = int(progressBarTotal * dl / total_length)
+                if done % 10 == 0 and prevMessageChange != done:
+                    prevMessageChange = done
+                    app.welcomeLabel.setText(random.choice(json.load(open(getAsset("messages.json")))))
                 sys.stdout.write("\r[%s / %s]" % (done, progressBarTotal))
                 sys.stdout.flush()
                 try:
@@ -321,6 +326,7 @@ class InstallThread(QThread):
             self.app.currentStep.load(getAsset("check-circle.svg"))
             self.app.currentStep = self.app.__dict__[name]
             self.app.currentStep.load(getAsset("clock.svg"))
+            self.app.welcomeLabel.setText(random.choice(json.load(open(getAsset("messages.json")))))
 
         except:
             pass
