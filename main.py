@@ -1,5 +1,3 @@
-import random
-import json
 from PyQt5.QtWidgets import (
     QDialog,
     QLabel,
@@ -21,9 +19,10 @@ import sys
 import os
 from os import path
 import tempfile
-import shutil
 from zipfile import ZipFile as ZipFile_
 from zipfile import ZipInfo
+import random
+import json
 
 print(" ")
 
@@ -209,6 +208,7 @@ class PlatformStuff:
 
     def windowsShortcuts(self, app: "Installer", location):
         print(" ")
+
         try:
 
             def create_shortcuts(tool_name, exe_path, icon_path):
@@ -228,22 +228,6 @@ class PlatformStuff:
             showShortcutsWarning()
 
     def macShortcuts(self, app: "Installer", location):
-        """
-        chmod(
-            path.abspath(
-                path.join(
-                    location, installFolderName, "ctjs.app", "Contents", "MacOS", "nwjs"
-                )
-            )
-        )
-        exeFiles = ["chromedriver", "minidump_stackwalk", "nwjc", "payload"]
-        for i in exeFiles:
-            try:
-                chmod(path.abspath(path.join(location, installFolderName, i)))
-            except:
-                pass
-        """
-
         try:
             import pyshortcuts
 
@@ -251,33 +235,11 @@ class PlatformStuff:
                 path.join(location, installFolderName, "ctjs.app"),
                 path.join(pyshortcuts.get_desktop(), "ctjs.app"),
             )
+
         except:
             showShortcutsWarning()
 
     def linuxShortcuts(self, app: "Installer", location):
-        exeFiles = [
-            "chromedriver",
-            "ctjs",
-            "nwjc",
-            "nacl_irt_x86_64.nexe",
-            "minidump_stackwalk",
-            "nacl_helper",
-            "nacl_helper_bootstrap",
-            "payload",
-            "pnacl/pnacl_public_x86_64_ld_nexe",
-            "pnacl/pnacl_public_x86_64_pnacl_llc_nexe",
-            "pnacl/pnacl_public_x86_64_pnacl_sz_nexe",
-            # Libraries
-            "lib/libffmpeg.so",
-            "lib/libnode.so",
-            "lib/libnw.so",
-            "swiftshader/libEGL.so",
-            "swiftshader/libGLESv2.so",
-        ]
-        for i in exeFiles:
-            # chmod(path.abspath(path.join(location, installFolderName, i)))
-            pass
-
         try:
             desktopFileName = "ct.js.desktop"
             with open(getAsset(desktopFileName), "r") as f:
@@ -299,6 +261,7 @@ class PlatformStuff:
             with open(secondLocation, "w") as f:
                 f.write(contents)
             chmod(secondLocation)
+
         except:
             showShortcutsWarning()
 
@@ -329,21 +292,28 @@ class InstallThread(QThread):
 
         githubData = requests.get(Constants.githubUrl).json()
         self.changeStep("installInfoImage_2")
+
         print(" ")
         return githubData
 
     def getRelease(self, channel):
         # https://stackoverflow.com/questions/9542738/python-find-in-list#9542768
         release = [x for x in self.getGitHubData()["assets"] if channel in x["name"]][0]
+
         print(" ")
+
         url = release["browser_download_url"]
+
         print(" ")
+
         try:
             self.app.pbar.show()
         except:
             pass
+
         downloadUrl(self.app, url)
         self.changeStep("installInfoImage_3")
+
         print(" ")
 
     def changeStep(self, name):
@@ -351,28 +321,38 @@ class InstallThread(QThread):
             self.app.currentStep.load(getAsset("check-circle.svg"))
             self.app.currentStep = self.app.__dict__[name]
             self.app.currentStep.load(getAsset("clock.svg"))
+
         except:
             pass
 
     def run(self):
         self.getRelease(platformStuff.channel)
+
         print(" ")
+
         zipFolderName = platformStuff.channel
+
         print(" ")
 
         print("Unpacking the zip")
         with ZipFile(Constants.downloadedFilePath(), "r") as zip_ref:
             try:
                 zipFolderName = os.path.dirname(zip_ref.namelist()[0])
+
             except:
                 pass
+
             zip_ref.extractall(self.location)
 
         import time
 
         time.sleep(0.5)
+
+        from shutil import copyfile, rmtree
+
         try:
-            shutil.rmtree(os.path.join(self.location, installFolderName))
+            rmtree(os.path.join(self.location, installFolderName))
+
         except:
             pass
 
@@ -382,16 +362,17 @@ class InstallThread(QThread):
         )
         print(" ")
 
-        from shutil import copyfile
-
         copyfile(
             getAsset("icon.ico"),
             path.join(self.location, installFolderName, "ctjs.ico"),
         )
 
         self.changeStep("installInfoImage_4")
+
         print(" ")
+
         platformStuff.shortcuts(self.app, self.location)
+
         print(" ")
 
         try:
@@ -424,8 +405,10 @@ class InstallThread(QThread):
                     )
                 )
                 print(" ")
+
             except:
                 pass
+
         else:
             print(
                 "You may be running from source, not copying the executable to the install dir."
@@ -442,6 +425,7 @@ class InstallThread(QThread):
             self.app.currentStep = null
             self.app.doneInstalling = true
             self.app.setWindowTitle("Done installing ct.js!")
+
         except:
             pass
 
@@ -454,8 +438,10 @@ class Installer(QDialog):
 
         try:
             self.setWindowIcon(QtGui.QIcon(getAsset("icon.ico")))
+
         except:
             pass
+
         self.setWindowIconText("ct.js Installer")
         self.setWindowTitle("ct.js Installer")
         self.left = 30
@@ -469,8 +455,6 @@ class Installer(QDialog):
 
         self.installing = false
         self.doneInstalling = false
-
-        # Border and bottom row
 
         # First page
 
@@ -498,6 +482,7 @@ class Installer(QDialog):
             + installFolderName,
             parent=self,
         )
+        self.updateLocation()
         self.bottomRowTextLabel.move(21, 281)
         self.bottomRowTextLabel.resize(340, 19)
         self.bottomRowTextLabel.setWordWrap(false)
@@ -606,6 +591,7 @@ class Installer(QDialog):
             runCommand(program)
             sys.exit()
             return
+
         if self.installing:
             # Abort button
             try:
@@ -620,6 +606,7 @@ class Installer(QDialog):
                 pass
             sys.exit()
             return
+
         # Change button
         dialog = QFileDialog(self)
         dialog.setFileMode(QtWidgets.QFileDialog.DirectoryOnly)
@@ -647,16 +634,6 @@ class Installer(QDialog):
         qp.setPen(pen2)
         qp.setBrush(br2)
         qp.drawRect(QtCore.QRect(0, 264, self.width, self.height))
-
-        try:
-            currentFrame = self.gif.currentPixmap()
-            frameRect = currentFrame.rect()
-            frameRect.moveCenter(self.rect().center())
-            if frameRect.intersects(event.rect()):
-                painter = QPainter(self)
-                painter.drawPixmap(frameRect.left(), frameRect.top(), currentFrame)
-        except:
-            pass
 
     def setStyleName(self, name: str):
         return self.__dict__[name].setObjectName(name)
@@ -698,6 +675,7 @@ if __name__ == "__main__":
             "\nFolder name from arguments:",
             installFolderName,
         )
+
     except:
         pass
 
