@@ -4,7 +4,7 @@
     /* Welcome to Ct.js! */
 
     position: absolute;
-    width: 248px;
+    width: 300px;
     height: 44px;
     left: 20px;
     top: 46px;
@@ -231,14 +231,14 @@
     background-color: #446adb;
     border-color: #4033d3;
     text-align: center;
-    border-radius: 2px;
+    border-radius: 3px;
 }
 
 #pbar:chunk {
     background-color: #3e2fdd;
     border-color: #4033d3;
     text-align: center;
-    border-radius: 2px;
+    border-radius: 3px;
 }
 
 /*

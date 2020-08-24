@@ -22,6 +22,8 @@ import os
 from os import path
 import tempfile
 import shutil
+from zipfile import ZipFile as ZipFile_
+from zipfile import ZipInfo
 
 print(" ")
 
@@ -53,6 +55,33 @@ def basePath():
 
 def getAsset(name):
     return os.path.join(basePath(), "assets", name)
+
+
+# https://stackoverflow.com/a/39296577
+class ZipFile(ZipFile_):
+    def extractall(self, path=None, members=None, pwd=None):
+        if members is None:
+            members = self.namelist()
+
+        if path is None:
+            path = os.getcwd()
+        else:
+            path = os.fspath(path)
+
+        for zipinfo in members:
+            self.extract(zipinfo, path, pwd)
+
+    def extract(self, member, path=None, pwd=None):
+        if not isinstance(member, ZipInfo):
+            member = self.getinfo(member)
+
+        if path is None:
+            path = os.getcwd()
+
+        ret_val = self._extract_member(member, path, pwd)
+        attr = member.external_attr >> 16
+        os.chmod(ret_val, attr)
+        return ret_val
 
 
 class Constants:
@@ -129,19 +158,21 @@ def downloadUrl(app: "Installer", url, save_path="", chunk_size=1024):
                     app.pbar.setValue(done)
                 except:
                     pass
-                # sys.stdout.write(
-                #    "\r[%s%s]" % ("=" * done, " " * (progressBarTotal - done))
-                # )
-                # sys.stdout.flush()
+
     print(" ")
     print("Finished downloading " + url + " to " + save_path)
 
 
 def runCommand(command: str):
-    print(f"running command: {command}")
+    print(f"Running command: {command}")
     import subprocess
 
     subprocess.Popen(command, shell=True)
+
+
+def chmod(path_):
+    program = "chmod +x '" + path_ + "'"
+    runCommand(program)
 
 
 def showShortcutsWarning():
@@ -197,16 +228,21 @@ class PlatformStuff:
             showShortcutsWarning()
 
     def macShortcuts(self, app: "Installer", location):
-        program = (
-            "chmod +x '"
-            + path.abspath(
+        """
+        chmod(
+            path.abspath(
                 path.join(
                     location, installFolderName, "ctjs.app", "Contents", "MacOS", "nwjs"
                 )
             )
-            + "'"
         )
-        runCommand(program)
+        exeFiles = ["chromedriver", "minidump_stackwalk", "nwjc", "payload"]
+        for i in exeFiles:
+            try:
+                chmod(path.abspath(path.join(location, installFolderName, i)))
+            except:
+                pass
+        """
 
         try:
             import pyshortcuts
@@ -219,17 +255,28 @@ class PlatformStuff:
             showShortcutsWarning()
 
     def linuxShortcuts(self, app: "Installer", location):
-        exeFiles = ["chromedriver", "ctjs", "nwjc"]
+        exeFiles = [
+            "chromedriver",
+            "ctjs",
+            "nwjc",
+            "nacl_irt_x86_64.nexe",
+            "minidump_stackwalk",
+            "nacl_helper",
+            "nacl_helper_bootstrap",
+            "payload",
+            "pnacl/pnacl_public_x86_64_ld_nexe",
+            "pnacl/pnacl_public_x86_64_pnacl_llc_nexe",
+            "pnacl/pnacl_public_x86_64_pnacl_sz_nexe",
+            # Libraries
+            "lib/libffmpeg.so",
+            "lib/libnode.so",
+            "lib/libnw.so",
+            "swiftshader/libEGL.so",
+            "swiftshader/libGLESv2.so",
+        ]
         for i in exeFiles:
-            try:
-                program = (
-                    "chmod +x '"
-                    + path.abspath(path.join(location, installFolderName, i))
-                    + "'"
-                )
-                runCommand(program)
-            except:
-                pass
+            # chmod(path.abspath(path.join(location, installFolderName, i)))
+            pass
 
         try:
             desktopFileName = "ct.js.desktop"
@@ -247,13 +294,11 @@ class PlatformStuff:
 
             with open(firstLocation, "w") as f:
                 f.write(contents)
-            program = "chmod +x '" + firstLocation + "'"
-            runCommand(program)
+            chmod(firstLocation)
 
             with open(secondLocation, "w") as f:
                 f.write(contents)
-            program = "chmod +x '" + secondLocation + "'"
-            runCommand(program)
+            chmod(secondLocation)
         except:
             showShortcutsWarning()
 
@@ -268,6 +313,7 @@ class InstallThread(QThread):
         self.location = location
         self.app: Installer = parent
 
+        print(" ")
         print("InstallThread installation location:", self.location)
         print(
             "InstallThread actual location:      ",
@@ -309,15 +355,13 @@ class InstallThread(QThread):
             pass
 
     def run(self):
-        import zipfile
-
         self.getRelease(platformStuff.channel)
         print(" ")
         zipFolderName = platformStuff.channel
         print(" ")
 
         print("Unpacking the zip")
-        with zipfile.ZipFile(Constants.downloadedFilePath(), "r") as zip_ref:
+        with ZipFile(Constants.downloadedFilePath(), "r") as zip_ref:
             try:
                 zipFolderName = os.path.dirname(zip_ref.namelist()[0])
             except:
@@ -351,8 +395,10 @@ class InstallThread(QThread):
         print(" ")
 
         try:
-            print("Deleting temporary zip")
-            os.remove(Constants.downloadedFilePath())
+            # TODO: fix this to not freeze the installer
+
+            # print("Deleting temporary zip")
+            # os.remove(Constants.downloadedFilePath())
             print(" ")
         except:
             pass
@@ -369,6 +415,13 @@ class InstallThread(QThread):
                         installFolderName,
                         path.basename(application_path),
                     ),
+                )
+                chmod(
+                    path.join(
+                        self.location,
+                        installFolderName,
+                        path.basename(application_path),
+                    )
                 )
                 print(" ")
             except:
@@ -423,6 +476,7 @@ class Installer(QDialog):
 
         self.welcomeLabel = QLabel(Constants.welcomeLabel_1, parent=self)
         self.welcomeLabel.move(20, 14)
+        self.welcomeLabel.resize(300, 44)
         self.setStyleName("welcomeLabel")
 
         self.instructionsLabel = QLabel(Constants.instructionsLabel, parent=self)
@@ -555,6 +609,7 @@ class Installer(QDialog):
         if self.installing:
             # Abort button
             try:
+                print(" ")
                 print("Deleting temporary zip since the user aborted")
                 os.remove(Constants.downloadedFilePath())
             except:
@@ -613,10 +668,10 @@ if __name__ == "__main__":
     del sys.argv[0]
     print("Arguments:", sys.argv)
     print("Current working directory:", os.getcwd())
+    print("sys.executable:", sys.executable)
     print(" ")
 
     print("Running gui")
-    print(" ")
     # https://stackoverflow.com/a/51914685
     # Tries to solve weird scaling that could occur
     os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
@@ -650,5 +705,6 @@ if __name__ == "__main__":
 
     app.exec_()
 
+    print(" ")
     print("Application closed")
     sys.exit()
