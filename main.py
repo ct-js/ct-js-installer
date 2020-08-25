@@ -353,29 +353,69 @@ class InstallThread(QThread):
                 pass
 
             zip_ref.extractall(self.location)
+        print("Done unpacking the zip")
 
         import time
 
         time.sleep(0.5)
 
-        from shutil import copyfile, rmtree
+        from shutil import copyfile, copy2, rmtree
+        from shutil import copytree as copytree_
+
+        def copytree(src, dst):
+            for src_dir, dirs, files in os.walk(src):
+                dst_dir = src_dir.replace(src, dst, 1)
+                if not os.path.exists(dst_dir):
+                    os.makedirs(dst_dir)
+                for file_ in files:
+                    src_file = os.path.join(src_dir, file_)
+                    dst_file = os.path.join(dst_dir, file_)
+                    if os.path.exists(dst_file):
+                        os.remove(dst_file)
+                    copy2(src_file, dst_dir)
 
         try:
-            rmtree(os.path.join(self.location, installFolderName))
+            print("Making install folder directory")
+            os.mkdir(os.path.join(self.location, installFolderName))
 
         except:
             pass
 
-        os.rename(
+        print("Copying files")
+        copytree(
             os.path.join(self.location, zipFolderName),
             os.path.join(self.location, installFolderName),
         )
         print(" ")
 
-        copyfile(
-            getAsset("icon.ico"),
-            path.join(self.location, installFolderName, "ctjs.ico"),
-        )
+        print("Copying icon files (if they dont exist)")
+        if not path.exists(path.join(self.location, installFolderName, "ctjs.ico")):
+            print("Copying ctjs.ico")
+            copyfile(
+                getAsset("icon.ico"),
+                path.join(self.location, installFolderName, "ctjs.ico"),
+            )
+
+        if not path.exists(path.join(self.location, installFolderName, "ctjs.icns")):
+            print("Copying ctjs.icns")
+            copyfile(
+                getAsset("icon.icns"),
+                path.join(self.location, installFolderName, "ctjs.icns"),
+            )
+
+        if not path.exists(path.join(self.location, installFolderName, "ctjs.png")):
+            print("Copying ct_ide.png")
+            copyfile(
+                getAsset("icon.png"),
+                path.join(self.location, installFolderName, "ct_ide.png"),
+            )
+
+        try:
+            print("Deleting unzipped folder")
+            rmtree(os.path.join(self.location, zipFolderName))
+
+        except:
+            pass
 
         self.changeStep("installInfoImage_4")
 
@@ -635,15 +675,18 @@ class Installer(QDialog):
         qp.setPen(pen)
         qp.setBrush(br)
         qp.drawRect(QtCore.QRect(0, 0, self.width, self.height))
+        qp.end()
 
         # Bottom row
+        qp2 = QtGui.QPainter(self)
         br2 = QtGui.QBrush(QtGui.QColor(255, 255, 255, 100))
         pen2 = QtGui.QPen()
         pen2.setColor(QtGui.QColor(200, 205, 209, 200))
         pen2.setWidth(1.5)
-        qp.setPen(pen2)
-        qp.setBrush(br2)
-        qp.drawRect(QtCore.QRect(0, 264, self.width, self.height))
+        qp2.setPen(pen2)
+        qp2.setBrush(br2)
+        qp2.drawRect(QtCore.QRect(0, 264, self.width, self.height))
+        qp2.end()
 
     def setStyleName(self, name: str):
         return self.__dict__[name].setObjectName(name)
