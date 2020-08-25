@@ -362,6 +362,7 @@ class InstallThread(QThread):
         from shutil import copyfile, copy2, rmtree
         from shutil import copytree as copytree_
 
+        # https://lukelogbook.tech/2018/01/25/merging-two-folders-in-python/
         def copytree(src, dst):
             for src_dir, dirs, files in os.walk(src):
                 dst_dir = src_dir.replace(src, dst, 1)
