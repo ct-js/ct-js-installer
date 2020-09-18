@@ -109,6 +109,8 @@ class Constants:
     downloadedFilePath = lambda: os.path.join(
         tempfile.gettempdir(), installFolderName, Constants.downloadedFileName
     )
+    nodeModulesPath = ["./node_modules", "./data/node_requires"]
+    macRoot = "./ctjs.app/Contents/Resources/app.nw"
 
     ########### Other
     githubUrl = "https://api.github.com/repos/ct-js/ct-js/releases/latest"
@@ -338,6 +340,19 @@ class InstallThread(QThread):
     def run(self):
         self.getRelease(platformStuff.channel)
 
+        from shutil import copyfile, copy2, rmtree
+        from shutil import copytree as copytree_
+
+        root = path.join(self.location, installFolderName)
+        if "osx" in platformStuff.channel:
+            root = path.join(root, Constants.macRoot)
+        for path in Constants.nodeModulesPath:
+            try:
+                node_module = path.join(root, path)
+                rmtree(node_module)
+            except:
+                pass
+
         print(" ")
 
         zipFolderName = platformStuff.channel
@@ -358,9 +373,6 @@ class InstallThread(QThread):
         import time
 
         time.sleep(0.5)
-
-        from shutil import copyfile, copy2, rmtree
-        from shutil import copytree as copytree_
 
         # https://lukelogbook.tech/2018/01/25/merging-two-folders-in-python/
         def copytree(src, dst):
