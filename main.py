@@ -316,7 +316,8 @@ class InstallThread(QThread):
         print(" ")
 
         try:
-            self.app.pbar.show()
+            pass
+            # self.app.pbar.show()
         except:
             pass
 
@@ -346,10 +347,12 @@ class InstallThread(QThread):
         root = path.join(self.location, installFolderName)
         if "osx" in platformStuff.channel:
             root = path.join(root, Constants.macRoot)
-        for path in Constants.nodeModulesPath:
+        for path_ in Constants.nodeModulesPath:
             try:
-                node_module = path.join(root, path)
+                node_module = path.join(root, path_)
+                print(f"Removing {path.basename(node_module)} (path: {node_module})")
                 rmtree(node_module)
+
             except:
                 pass
 
