@@ -1,5 +1,5 @@
 :: Zips the .exe file
-timeout.exe 5 /nobreak
+cmd /C "timeout 5 /nobreak"
 robocopy ./dist /S /V /MIR ./ctjs-installer-windows
 mkdir zip
 :: powershell "Compress-Archive ctjs-installer-windows/*.exe ctjs-installer-windows.zip"
