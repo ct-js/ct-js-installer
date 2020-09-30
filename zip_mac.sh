@@ -1,3 +1,7 @@
+#!/bin/sh
+
+cd "$(dirname "$0")"
+
 # Zips the .app file
 cp -v -f -R dist ctjs-installer-mac
 mkdir zip

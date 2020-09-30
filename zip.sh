@@ -1,3 +1,7 @@
+#!/bin/sh
+
+cd "$(dirname "$0")"
+
 # Zips the executable
 cp -v -f -R dist ctjs-installer-linux
 mkdir zip
