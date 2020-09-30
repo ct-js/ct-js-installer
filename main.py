@@ -91,7 +91,7 @@ class Constants:
     bottomRowTextLabel_1 = "Installing at "
     changeAbortLabel_1 = "Change..."
 
-    welcomeLabel_2 = random.choice(json.load(open(getAsset("messages.json"))))
+    welcomeLabel_2 = lambda: random.choice(json.load(open(getAsset("messages.json"))))
     installInfoLabel_1 = "Get release info"
     installInfoLabel_2 = "Download the app"
     installInfoLabel_3 = "Unpack and install ct.js"
@@ -108,6 +108,10 @@ class Constants:
     downloadedFileName = "ctjs-installer-download.zip"
     downloadedFilePath = lambda: os.path.join(
         tempfile.gettempdir(), installFolderName, Constants.downloadedFileName
+    )
+    locationFileName = "ctjs-installer-location.txt"
+    locationFilePath = lambda: os.path.join(
+        tempfile.gettempdir(), Constants.locationFileName
     )
     nodeModulesPath = ["./node_modules", "./data/node_requires"]
     macRoot = "./ctjs.app/Contents/Resources/app.nw"
@@ -157,9 +161,7 @@ def downloadUrl(app: "Installer", url, save_path="", chunk_size=1024):
                 done = int(progressBarTotal * dl / total_length)
                 if done % 10 == 0 and prevMessageChange != done:
                     prevMessageChange = done
-                    app.welcomeLabel.setText(
-                        random.choice(json.load(open(getAsset("messages.json"))))
-                    )
+                    app.welcomeLabel.setText(Constants.welcomeLabel_2())
                 sys.stdout.write("\r[%s / %s]" % (done, progressBarTotal))
                 sys.stdout.flush()
                 try:
@@ -224,8 +226,7 @@ class PlatformStuff:
                 with open(getAsset("create_shortcuts.bat"), "r") as f:
                     contents = f.read().replace("{installDir}", location)
 
-                program = contents
-                runCommand(program)
+                runCommand(contents)
 
             create_shortcuts(
                 "ct.js",
@@ -331,9 +332,7 @@ class InstallThread(QThread):
             self.app.currentStep.load(getAsset("check-circle.svg"))
             self.app.currentStep = self.app.__dict__[name]
             self.app.currentStep.load(getAsset("clock.svg"))
-            self.app.welcomeLabel.setText(
-                random.choice(json.load(open(getAsset("messages.json"))))
-            )
+            self.app.welcomeLabel.setText(Constants.welcomeLabel_2())
 
         except:
             pass
@@ -519,6 +518,17 @@ class Installer(QDialog):
 
         self.location = Constants.defaultInstallDir
 
+        try:
+            with open(Constants.locationFilePath(), "r") as f:
+                self.location = f.read()
+                print("Read the location from " + Constants.locationFilePath())
+
+        except:
+            print(
+                "Reading the location file failed; attempted location: "
+                + Constants.locationFilePath()
+            )
+
         self.installing = false
         self.doneInstalling = false
 
@@ -526,7 +536,7 @@ class Installer(QDialog):
 
         self.welcomeLabel = QLabel(Constants.welcomeLabel_1, parent=self)
         self.welcomeLabel.move(20, 14)
-        self.welcomeLabel.resize(300, 44)
+        self.welcomeLabel.resize(350, 44)
         self.setStyleName("welcomeLabel")
 
         self.instructionsLabel = QLabel(Constants.instructionsLabel, parent=self)
@@ -568,7 +578,18 @@ class Installer(QDialog):
         self.installing = true
         self.setWindowTitle("Installing ct.js...")
 
-        self.welcomeLabel.setText(Constants.welcomeLabel_2)
+        try:
+            with open(Constants.locationFilePath(), "w") as f:
+                f.write(self.location)
+                print("Wrote the location to " + Constants.locationFilePath())
+
+        except:
+            print(
+                "Writing the location file failed; attempted location: "
+                + Constants.locationFilePath()
+            )
+
+        self.welcomeLabel.setText(Constants.welcomeLabel_2())
         self.changeAbortLabel.setText(Constants.changeAbortLabel_2)
         self.bottomRowTextLabel.setText(Constants.bottomRowTextLabel_2)
         self.instructionsLabel.hide()
