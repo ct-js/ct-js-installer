@@ -154,6 +154,7 @@ def downloadUrl(app: "Installer", url, save_path="", chunk_size=1024):
         else:
             progressBarTotal = 100
             dl = 0
+            prevDone = 0;
             total_length = int(total_length)
             for data in response.iter_content(chunk_size=chunk_size):
                 dl += len(data)
@@ -162,6 +163,11 @@ def downloadUrl(app: "Installer", url, save_path="", chunk_size=1024):
                 if done % 10 == 0 and prevMessageChange != done:
                     prevMessageChange = done
                     app.welcomeLabel.setText(Constants.welcomeLabel_2())
+                if (prevDone != done):
+                    downloadLabel = Constants.installInfoLabel_2 + ' (' + str(done) + '%)';
+                    prevDone = done;
+                    print(done);
+                    app.installInfoLabel_2.setText(downloadLabel);
                 sys.stdout.write("\r[%s / %s]" % (done, progressBarTotal))
                 sys.stdout.flush()
                 try:
